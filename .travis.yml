@@ -1,69 +1,26 @@
-# language: cpp
-# dist: trusty
-
-# matrix:
-#   - os: linux
-#     addons:
-#       apt:
-#         sources:
-#           - ubuntu-toolchain-r-test
-#         packages:
-#           - g++-9
-#     env:
-#       - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
-#   # include:
-#   #   - os: linux
-#   #     addons:
-#   #       apt:
-#   #         sources:
-#   #           - ubuntu-toolchain-r-test
-#   #         packages:
-#   #           - g++-10
-#   #     env:
-#   #       - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
-
-# before_install:
-#   - eval "${MATRIX_EVAL}"
-
-# script: mkdir _build && cd _build && cmake .. && ninja publish && ninja && ctest
-
 language: cpp
 sudo: false
-dist: xenial
+dist: bionic
+
+cache:
+  directories:
+    - $HOME/deps
+
+before_install:
+  - curl -o cmake-3.15.3-Linux-x86_64.sh -SL "https://github.com/Kitware/CMake/releases/download/v3.15.3/cmake-3.15.3-Linux-x86_64.sh"
+  - chmod +x cmake-3.15.3-Linux-x86_64.sh
+  - ./cmake-3.15.3-Linux-x86_64.sh --skip-license --prefix=/usr
+  - rm -rf cmake-3.15.3-Linux-x86_64.sh
 
 before_script:
-  - sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
-  - /home/linuxbrew/.linuxbrew/bin/brew update
-  # - /home/linuxbrew/.linuxbrew/bin/brew install cmake
-  # - /home/linuxbrew/.linuxbrew/bin/brew install ninja
-  - /home/linuxbrew/.linuxbrew/bin/brew install boost@1.71
-  # boost hack
-  - pushd .
-  - cd /home/linuxbrew/.linuxbrew/lib/
-  - ls -d $PWD/* | grep "libboost_"
-  - ls -d $PWD/* | grep "libboost_"| grep -v "-mt"
-  - ls -d $PWD/* | grep "libboost_" | grep -v "-mt" | xargs rm
-  - popd
-
-  # - /home/linuxbrew/.linuxbrew/bin/brew install google-benchmark
-  # - /home/linuxbrew/.linuxbrew/bin/brew install mongo-cxx-driver
-  # # - /home/linuxbrew/.linuxbrew/bin/brew install rocksdb
-  # - /home/linuxbrew/.linuxbrew/bin/brew install zeromq
-
-# addons:
-#   apt:
-#     sources:
-#       - george-edison55-precise-backports
-#     packages:
-#       - cmake-data
-#       - cmake
+  - bash ./scripts/travis/install_deps.sh $HOME/deps
 
 script:
   - mkdir _build
   - cd _build
-  - cmake -DCMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/ ..
-  - ninja publish
-  - ninja
+  - bash ../scripts/travis/cmake.sh $HOME/deps
+  - make publish
+  - make
   - ctest
 
 matrix:
@@ -71,12 +28,16 @@ matrix:
     - os: linux
       addons:
         apt:
+          update: true
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
+            - cmake
+            - ninja-build
+            - gcc-9
             - g++-9
-            # - linuxbrew-wrapper
       env:
+        - BOOST_ROOT="$HOME/deps/boost"
         - MATRIX_EVAL="CC=gcc-9 CXX=g++-9"
 
     # - os: linux
