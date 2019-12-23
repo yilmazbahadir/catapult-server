@@ -1,0 +1,228 @@
+# language: cpp
+# dist: trusty
+
+# matrix:
+#   - os: linux
+#     addons:
+#       apt:
+#         sources:
+#           - ubuntu-toolchain-r-test
+#         packages:
+#           - g++-9
+#     env:
+#       - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+#   # include:
+#   #   - os: linux
+#   #     addons:
+#   #       apt:
+#   #         sources:
+#   #           - ubuntu-toolchain-r-test
+#   #         packages:
+#   #           - g++-10
+#   #     env:
+#   #       - MATRIX_EVAL="CC=gcc-10 && CXX=g++-10"
+
+# before_install:
+#   - eval "${MATRIX_EVAL}"
+
+# script: mkdir _build && cd _build && cmake .. && ninja publish && ninja && ctest
+
+language: cpp
+sudo: false
+dist: xenial
+
+before_script:
+  - sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+  - /home/linuxbrew/.linuxbrew/bin/brew update
+  # - /home/linuxbrew/.linuxbrew/bin/brew install cmake
+  # - /home/linuxbrew/.linuxbrew/bin/brew install ninja
+  - /home/linuxbrew/.linuxbrew/bin/brew install boost@1.71
+  # boost hack
+  - pushd .
+  - cd /home/linuxbrew/.linuxbrew/lib/
+  - ls -d $PWD/* | grep "libboost_"
+  - ls -d $PWD/* | grep "libboost_"| grep -v "-mt"
+  - ls -d $PWD/* | grep "libboost_" | grep -v "-mt" | xargs rm
+  - popd
+
+  # - /home/linuxbrew/.linuxbrew/bin/brew install google-benchmark
+  # - /home/linuxbrew/.linuxbrew/bin/brew install mongo-cxx-driver
+  # # - /home/linuxbrew/.linuxbrew/bin/brew install rocksdb
+  # - /home/linuxbrew/.linuxbrew/bin/brew install zeromq
+
+# addons:
+#   apt:
+#     sources:
+#       - george-edison55-precise-backports
+#     packages:
+#       - cmake-data
+#       - cmake
+
+script:
+  - mkdir _build
+  - cd _build
+  - cmake -DCMAKE_PREFIX_PATH=/home/linuxbrew/.linuxbrew/ ..
+  - ninja publish
+  - ninja
+  - ctest
+
+matrix:
+  include:
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+            # - linuxbrew-wrapper
+      env:
+        - MATRIX_EVAL="CC=gcc-9 CXX=g++-9"
+
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - g++-4.8
+    #   env:
+    #      - MATRIX_EVAL="CC=gcc-4.8 CXX=g++-4.8"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - g++-4.9
+    #   env:
+    #      - MATRIX_EVAL="CC=gcc-4.9 CXX=g++-4.9"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - g++-5
+    #   env:
+    #      - MATRIX_EVAL="CC=gcc-5 CXX=g++-5"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - g++-6
+    #   env:
+    #     - MATRIX_EVAL="CC=gcc-6 CXX=g++-6"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - g++-7
+    #   env:
+    #     - MATRIX_EVAL="CC=gcc-7 CXX=g++-7"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #       packages:
+    #         - g++-8
+    #   env:
+    #     - MATRIX_EVAL="CC=gcc-8 CXX=g++-8"
+
+
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.8 main'
+    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+    #       packages:
+    #         - clang-3.8
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-3.8 CXX=clang++-3.8"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main'
+    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+    #       packages:
+    #         - clang-3.9
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-3.9 CXX=clang++-3.9"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main'
+    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+    #       packages:
+    #         - clang-4.0
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-4.0 CXX=clang++-4.0"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main'
+    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+    #       packages:
+    #         - clang-5.0
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-5.0 CXX=clang++-5.0"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main'
+    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+    #       packages:
+    #         - clang-6.0
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-6.0 CXX=clang++-6.0"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main'
+    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+    #       packages:
+    #         - clang-7
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-7 CXX=clang++-7"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main'
+    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+    #       packages:
+    #         - clang-8
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-8 CXX=clang++-8"
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - ubuntu-toolchain-r-test
+    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
+    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+    #       packages:
+    #         - clang-9
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-9 CXX=clang++-9"
+
+before_install:
+  - eval "${MATRIX_EVAL}"
