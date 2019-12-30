@@ -16,8 +16,8 @@ script:
   - mkdir _build
   - cd _build
   - bash ../scripts/travis/cmake.sh $HOME/deps
-  - make publish
-  - make
+  - ninja publish
+  - ninja
   - ctest
 
 matrix:
