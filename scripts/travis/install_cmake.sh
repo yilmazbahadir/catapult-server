@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -ex
+
 if [ "$#" -ne 1 ]; then
 	echo "cmake directory is required"
 	exit 1

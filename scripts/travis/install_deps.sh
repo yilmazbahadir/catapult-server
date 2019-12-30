@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -ex
+
 if [ "$#" -ne 1 ]; then
 	echo "dependencies directory is required"
 	exit 1
