@@ -44,8 +44,7 @@ function install_boost {
 
 	b2_options=()
 	b2_options+=(toolset=clang)
-	b2_options+=(cxxflags='-std=c++1y -stdlib=libc++')
-	b2_options+=(linkflags='-stdlib=libc++')
+	b2_options+=(cxxflags='-std=c++1y')
 	b2_options+=(--prefix=${boost_output_dir})
 	./b2 ${b2_options[@]} -j 8 stage release
 	./b2 install ${b2_options[@]}
@@ -67,10 +66,6 @@ function install_git_dependency {
 	if [ "$2" = "rocksdb" ]; then
 		cxx_flags="${cxx_flags} -Wno-deprecated-copy -Wno-pessimizing-move"
 	fi
-
-	echo "AAAAAA"
-	echo cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="${deps_dir}/${1}" -DCMAKE_CXX_FLAGS="${cxx_flags}" ${cmake_options[@]} ..
-	echo "AAAAAA"
 
 	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="${deps_dir}/${1}" -DCMAKE_CXX_FLAGS="${cxx_flags[@]}" ${cmake_options[@]} ..
 	make -j 8 && make install
@@ -132,13 +127,13 @@ function install_rocks {
 mkdir source
 
 declare -a installers=(
-	# install_boost
-	# install_google_test
-	# install_google_benchmark
-	# install_mongo_c_driver
-	# install_mongo_cxx_driver
-	# install_zmq_lib
-	# install_zmq_cpp
+	install_boost
+	install_google_test
+	install_google_benchmark
+	install_mongo_c_driver
+	install_mongo_cxx_driver
+	install_zmq_lib
+	install_zmq_cpp
 	install_rocks
 )
 for install in "${installers[@]}"
