@@ -63,7 +63,7 @@ function install_git_dependency {
 	mkdir _build
 	cd _build
 
-	cxx_flags="-std=c++1y -stdlib=libc++"
+	cxx_flags="-std=c++1y"
 	if [ "$2" = "rocksdb" ]; then
 		cxx_flags="${cxx_flags} -Wno-deprecated-copy -Wno-pessimizing-move"
 	fi
