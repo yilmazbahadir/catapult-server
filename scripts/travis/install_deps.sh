@@ -11,6 +11,13 @@ if [ ! -d "$1" ]; then
 fi
 
 deps_dir=$1
+cd ${deps_dir}
+
+if [ -d nemtech ]; then
+	echo "previous dependencies installation attempt detected"
+	exit 0
+fi
+
 boost_output_dir=${deps_dir}/boost
 gtest_output_dir=${deps_dir}/gtest
 mongo_output_dir=${deps_dir}/mongo
@@ -56,20 +63,26 @@ function install_git_dependency {
 	mkdir _build
 	cd _build
 
-	cmake_options+=(-DCMAKE_CXX_FLAGS='-std=c++1y -stdlib=libc++')
-	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="${deps_dir}/${1}" ${cmake_options[@]} ..
+	cxx_flags="-std=c++1y -stdlib=libc++"
+	if [ "$2" = "rocksdb" ]; then
+		cxx_flags="${cxx_flags} -Wno-deprecated-copy -Wno-pessimizing-move"
+	fi
+
+	echo "AAAAAA"
+	echo cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="${deps_dir}/${1}" -DCMAKE_CXX_FLAGS="${cxx_flags}" ${cmake_options[@]} ..
+	echo "AAAAAA"
+
+	cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="${deps_dir}/${1}" -DCMAKE_CXX_FLAGS="${cxx_flags[@]}" ${cmake_options[@]} ..
 	make -j 8 && make install
 }
 
 function install_google_test {
-	cmake_options=()
-	cmake_options+=(-DCMAKE_POSITION_INDEPENDENT_CODE=ON)
+	cmake_options=(-DCMAKE_POSITION_INDEPENDENT_CODE=ON)
 	install_git_dependency google googletest release-1.8.1
 }
 
 function install_google_benchmark {
-	cmake_options=()
-	cmake_options+=(-DBENCHMARK_ENABLE_GTEST_TESTS=OFF)
+	cmake_options=(-DBENCHMARK_ENABLE_GTEST_TESTS=OFF)
 	install_git_dependency google benchmark v1.5.0
 }
 
@@ -83,8 +96,7 @@ function install_mongo_c_driver {
 }
 
 function install_mongo_cxx_driver {
-	cmake_options=()
-	cmake_options+=(-DBOOST_ROOT=${boost_output_dir})
+	cmake_options=(-DBOOST_ROOT=${boost_output_dir})
 	cmake_options+=(-DLIBBSON_DIR=${mongo_output_dir})
 	cmake_options+=(-DLIBMONGOC_DIR=${mongo_output_dir})
 	cmake_options+=(-DCMAKE_CXX_STANDARD=17)
@@ -111,31 +123,22 @@ function install_zmq_cpp {
 # region rocks
 
 function install_rocks {
-	cmake_options=(PORTABLE=1)
-	cmake_options+=(USE_SSE=1)
-	cmake_options+=(-DWITH_TESTS=OFF)
+	cmake_options=(-DWITH_TESTS=OFF)
 	install_git_dependency nemtech rocksdb v6.2.4-nem
 }
 
 # endregion
 
-cd ${deps_dir}
-
-if [ -d source ]; then
-	echo "previous dependencies installation attempt detected"
-	exit 0
-fi
-
 mkdir source
 
 declare -a installers=(
-	install_boost
-	install_google_test
-	install_google_benchmark
-	install_mongo_c_driver
-	install_mongo_cxx_driver
-	install_zmq_lib
-	install_zmq_cpp
+	# install_boost
+	# install_google_test
+	# install_google_benchmark
+	# install_mongo_c_driver
+	# install_mongo_cxx_driver
+	# install_zmq_lib
+	# install_zmq_cpp
 	install_rocks
 )
 for install in "${installers[@]}"

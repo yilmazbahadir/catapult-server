@@ -4,18 +4,15 @@ dist: bionic
 
 cache:
   directories:
+    - $HOME/cmake
     - $HOME/deps
-
-before_install:
-  - curl -o cmake-3.15.3-Linux-x86_64.sh -SL "https://github.com/Kitware/CMake/releases/download/v3.15.3/cmake-3.15.3-Linux-x86_64.sh"
-  - chmod +x cmake-3.15.3-Linux-x86_64.sh
-  - ./cmake-3.15.3-Linux-x86_64.sh --skip-license --prefix=/usr
-  - rm -rf cmake-3.15.3-Linux-x86_64.sh
 
 before_script:
   - bash ./scripts/travis/install_deps.sh $HOME/deps
+  - rm -rf $HOME/deps/source # delete downloaded sources to minimize cache size
 
 script:
+  - cmake -version
   - mkdir _build
   - cd _build
   - bash ../scripts/travis/cmake.sh $HOME/deps
@@ -32,10 +29,11 @@ matrix:
           sources:
             - sourceline: 'ppa:ubuntu-toolchain-r/test'
           packages:
-            - cmake
             - ninja-build
             - gcc-9
             - g++-9
+            - libgflags-dev
+            - libsnappy-dev
       env:
         - BOOST_ROOT="$HOME/deps/boost"
         - MATRIX_EVAL="CC=gcc-9 CXX=g++-9"
@@ -186,4 +184,6 @@ matrix:
     #     - MATRIX_EVAL="CC=clang-9 CXX=clang++-9"
 
 before_install:
+  - bash ./scripts/travis/install_cmake.sh $HOME/cmake
+  - export PATH="$HOME/cmake/bin:$PATH"
   - eval "${MATRIX_EVAL}"
