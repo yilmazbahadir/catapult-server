@@ -18,7 +18,7 @@ script:
   - cd _build
   - bash ../scripts/travis/cmake.sh $HOME/deps
   - ninja publish
-  - ninja
+  - ninja -j 8
   - ctest
 
 matrix:
