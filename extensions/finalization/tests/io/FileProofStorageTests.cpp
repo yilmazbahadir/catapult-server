@@ -88,7 +88,7 @@ namespace catapult { namespace io {
 			chain::FinalizationProof proof;
 
 			auto hash = test::GenerateRandomByteArray<Hash256>();
-			crypto::StepIdentifier stepIdentifier = { finalizationPoint.unwrap(), 123, 456 };
+			crypto::StepIdentifier stepIdentifier{ finalizationPoint.unwrap(), 123, 456 };
 			for (auto i = 0u; i < numVotes; ++i)
 				proof.push_back(test::CreateMessage(stepIdentifier, hash));
 
