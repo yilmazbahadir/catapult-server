@@ -45,6 +45,12 @@ namespace catapult { namespace finalization {
 		/// Maximum number of hashes to finalize per finalization point.
 		uint32_t MaxHashesPerPoint;
 
+		/// Duration for a propose message stage.
+		utils::TimeSpan ProposeMessageStageDuration;
+
+		/// Maximum duration for an aggregation stage before timing out.
+		utils::TimeSpan AggregationStageMaxDuration;
+
 	private:
 		FinalizationConfiguration() = default;
 

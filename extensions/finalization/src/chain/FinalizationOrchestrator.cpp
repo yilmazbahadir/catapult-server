@@ -30,7 +30,7 @@ namespace catapult { namespace chain {
 			Collect_Chain_Votes,
 			Count_Best_Hash_Votes,
 
-			// TODO: following stages are placeholders
+			// TODO: following stages are placeholders (there will almost certainly be more)
 			Binary_BA_Start,
 			Binary_BA_End
 		};

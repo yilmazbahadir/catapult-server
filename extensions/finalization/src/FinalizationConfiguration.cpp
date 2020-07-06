@@ -42,7 +42,10 @@ namespace catapult { namespace finalization {
 
 		LOAD_PROPERTY(MaxHashesPerPoint);
 
-		utils::VerifyBagSizeLte(bag, 5);
+		LOAD_PROPERTY(ProposeMessageStageDuration);
+		LOAD_PROPERTY(AggregationStageMaxDuration);
+
+		utils::VerifyBagSizeLte(bag, 7);
 		return config;
 	}
 
