@@ -56,12 +56,13 @@ namespace catapult { namespace finalization {
 		public:
 			model::FinalizationContext operator()() const {
 				auto storageContext = loadStorageContext();
+				auto accountStateCacheView = m_accountStateCache.createView();
 				return model::FinalizationContext(
 						storageContext.NextFinalizationPoint,
 						storageContext.LastFinalizedHeight,
 						storageContext.LastFinalizedGenerationHash,
 						m_config,
-						*m_accountStateCache.createView());
+						*accountStateCacheView);
 			}
 
 		private:
