@@ -43,8 +43,15 @@ namespace catapult { namespace chain {
 				const consumer<const HeightHashesPair&>& messageSink);
 
 	public:
-		/// Creates a single step aggregator factory.
-		SingleStepAggregatorFactory createSingleStepAggregatorFactory();
+		/// Gets the current sub round.
+		uint64_t subRound() const;
+
+		/// Gets the current sub round start time.
+		Timestamp subRoundStartTime() const;
+
+	public:
+		/// Creates a single step aggregator factory for \a stepIdentifier.
+		std::unique_ptr<SingleStepFinalizationMessageAggregator> createSingleStepAggregator(const crypto::StepIdentifier& stepIdentifier);
 
 		/// Creates a finalization consensus sink that delegates to \a pointConsensusSink when consensus is reached
 		/// on a finalization point.
@@ -61,7 +68,8 @@ namespace catapult { namespace chain {
 		void incrementStage();
 
 	private:
-		enum class Stage {
+		// TODO: should this be public?
+		enum class Stage : uint64_t {
 			Propose_Chain,
 			Collect_Chain_Votes,
 			Count_Best_Hash_Votes,

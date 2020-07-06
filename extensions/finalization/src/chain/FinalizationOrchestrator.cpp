@@ -44,6 +44,14 @@ namespace catapult { namespace chain {
 			, m_stage(Stage::Propose_Chain)
 	{}
 
+	uint64_t FinalizationOrchestrator::subRound() const {
+		return utils::to_underlying_type(m_stage);
+	}
+
+	Timestamp FinalizationOrchestrator::subRoundStartTime() const {
+		return m_stageStartTime;
+	}
+
 	namespace {
 		auto CreateFinalizationMessageCommonBlockAggregator(
 				finalization::FinalizationConfiguration& config,
@@ -53,18 +61,18 @@ namespace catapult { namespace chain {
 		}
 	}
 
-	SingleStepAggregatorFactory FinalizationOrchestrator::createSingleStepAggregatorFactory() {
-		return [this](const auto& stepIdentifier) {
-			CATAPULT_LOG(debug) << "creating single step aggregator for: " << stepIdentifier;
+	std::unique_ptr<SingleStepFinalizationMessageAggregator> FinalizationOrchestrator::createSingleStepAggregator(
+			const crypto::StepIdentifier& stepIdentifier) {
+		CATAPULT_LOG(debug) << "creating single step aggregator for: " << stepIdentifier;
 
-			switch (stepIdentifier.SubRound) {
-			case 0:
-				return CreateFinalizationMessageMaximumVotesAggregator(m_config);
-			case 1:
-				return CreateFinalizationMessageCommonBlockAggregator(m_config, m_heightHashesPairSupplier());
-			default:
-				return CreateFinalizationMessageCountVotesAggregator(m_config);
-			}
+		auto stage = static_cast<Stage>(stepIdentifier.SubRound);
+		switch (stage) {
+		case Stage::Propose_Chain:
+			return CreateFinalizationMessageMaximumVotesAggregator(m_config);
+		case Stage::Collect_Chain_Votes:
+			return CreateFinalizationMessageCommonBlockAggregator(m_config, m_heightHashesPairSupplier());
+		default:
+			return CreateFinalizationMessageCountVotesAggregator(m_config);
 		};
 	}
 
