@@ -55,10 +55,21 @@ namespace catapult { namespace chain {
 		void advance(Timestamp time);
 
 	private:
+		// void handle(CollectChainVotes )
+		// 	Propose_Chain,
+		// 	Collect_Chain_Votes,
+		// 	Count_Best_Hash_Votes,
+
+		// 	// TODO: following stages are placeholders
+		// 	Binary_BA_Start,
+		// 	Binary_BA_End
+
+	private:
 		finalization::FinalizationConfiguration m_config;
 		supplier<HeightHashesPair> m_heightHashesPairSupplier;
 		consumer<const HeightHashesPair&> m_messageSink;
 
-		Timestamp m_stepStartTime;
+		Timestamp m_stageStartTime;
+		// std::shared_ptr<const model::FinalizationMessage> m_pLastProposeMessage;
 	};
 }}

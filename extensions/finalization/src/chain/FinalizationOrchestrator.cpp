@@ -25,10 +25,15 @@
 namespace catapult { namespace chain {
 
 	namespace {
-		bool ShouldAdvancePoint() {
-			// TODO: implement
-			return true;
-		}
+		enum class Stage {
+			Propose_Chain,
+			Collect_Chain_Votes,
+			Count_Best_Hash_Votes,
+
+			// TODO: following stages are placeholders
+			Binary_BA_Start,
+			Binary_BA_End
+		};
 
 		HeightHashesPair CreateEmptyHeightHashesPair() {
 			HeightHashesPair heightHashesPair;
@@ -72,17 +77,38 @@ namespace catapult { namespace chain {
 		};
 	}
 
+	// namespace {
+	// 	size_t FindFirstDifferenceIndex(const EntityRange<TEntity>& lhs, const EntityRange<TEntity>& rhs) {
+	// }
+
 	ConsensusSink FinalizationOrchestrator::createConsensusSink(const ConsensusSink& pointConsensusSink) {
 		return [/*this,*/ pointConsensusSink](const auto& stepIdentifier, const auto& heightHashPair, const auto& proof) {
-			// TODO: do something
+			auto stage = static_cast<Stage>(stepIdentifier.SubRound);
+			switch (stage) {
+			case Stage::Propose_Chain:
+				m_pLastProposeMessage = proof.front();
+				break;
 
-			if (ShouldAdvancePoint())
+			case Stage::Collect_Chain_Votes:
+				// TODO: find first difference between m_heightHashesPairSupplier().Hashes and proof.front().Hashes
+				break;
+
+			case Stage::Count_Best_Hash_Votes:
+				// m_messageSink(proof.
+				break;
+
+			case Stage::Binary_BA_Start:
+				break;
+
+			case Stage::Binary_BA_End:
 				pointConsensusSink(stepIdentifier, heightHashPair, proof);
+				break;
+			}
 		};
 	}
 
 	void FinalizationOrchestrator::advance(Timestamp time) {
-		m_stepStartTime = time;
+		m_stageStartTime = time;
 
 		m_messageSink(CreateEmptyHeightHashesPair());
 	}
