@@ -51,24 +51,32 @@ namespace catapult { namespace chain {
 		ConsensusSink createConsensusSink(const ConsensusSink& pointConsensusSink);
 
 	public:
+		/// Preparse a proposal message.
+		void propose();
+
 		/// Runs the orchestrator given the current \a time.
 		void advance(Timestamp time);
 
 	private:
-		// void handle(CollectChainVotes )
-		// 	Propose_Chain,
-		// 	Collect_Chain_Votes,
-		// 	Count_Best_Hash_Votes,
+		void incrementStage();
 
-		// 	// TODO: following stages are placeholders
-		// 	Binary_BA_Start,
-		// 	Binary_BA_End
+	private:
+		enum class Stage {
+			Propose_Chain,
+			Collect_Chain_Votes,
+			Count_Best_Hash_Votes,
+
+			// TODO: following stages are placeholders (there will almost certainly be more)
+			Binary_BA_Start,
+			Binary_BA_End
+		};
 
 	private:
 		finalization::FinalizationConfiguration m_config;
 		supplier<HeightHashesPair> m_heightHashesPairSupplier;
-		consumer<const HeightHashesPair&> m_messageSink;
+		consumer<const HeightHashesPair&> m_messageSink; // TODO: probably bad name, should this include subround? step identifier?
 
+		Stage m_stage;
 		Timestamp m_stageStartTime;
 		std::shared_ptr<const model::FinalizationMessage> m_pLastProposeMessage;
 	};

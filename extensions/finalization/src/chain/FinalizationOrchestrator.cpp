@@ -25,16 +25,6 @@
 namespace catapult { namespace chain {
 
 	namespace {
-		enum class Stage {
-			Propose_Chain,
-			Collect_Chain_Votes,
-			Count_Best_Hash_Votes,
-
-			// TODO: following stages are placeholders (there will almost certainly be more)
-			Binary_BA_Start,
-			Binary_BA_End
-		};
-
 		HeightHashesPair CreateEmptyHeightHashesPair() {
 			HeightHashesPair heightHashesPair;
 			heightHashesPair.Height = Height(0);
@@ -51,6 +41,7 @@ namespace catapult { namespace chain {
 			: m_config(config)
 			, m_heightHashesPairSupplier(heightHashesPairSupplier)
 			, m_messageSink(messageSink)
+			, m_stage(Stage::Propose_Chain)
 	{}
 
 	namespace {
@@ -77,39 +68,72 @@ namespace catapult { namespace chain {
 		};
 	}
 
-	// namespace {
-	// 	size_t FindFirstDifferenceIndex(const EntityRange<TEntity>& lhs, const EntityRange<TEntity>& rhs) {
-	// }
-
 	ConsensusSink FinalizationOrchestrator::createConsensusSink(const ConsensusSink& pointConsensusSink) {
 		return [this, pointConsensusSink](const auto& stepIdentifier, const auto& heightHashPair, const auto& proof) {
 			auto stage = static_cast<Stage>(stepIdentifier.SubRound);
 			switch (stage) {
 			case Stage::Propose_Chain:
+				// save the last (best) proposal message, but don't increment the stage
 				m_pLastProposeMessage = proof.front();
-				break;
+				return;
 
 			case Stage::Collect_Chain_Votes:
-				// TODO: find first difference between m_heightHashesPairSupplier().Hashes and proof.front().Hashes
+				// TODO: sign and send message
 				break;
 
 			case Stage::Count_Best_Hash_Votes:
-				// m_messageSink(proof.
+				// TODO: sign and send message
 				break;
 
 			case Stage::Binary_BA_Start:
+				// TODO: sign and send message
 				break;
 
 			case Stage::Binary_BA_End:
 				pointConsensusSink(stepIdentifier, heightHashPair, proof);
 				break;
 			}
+
+			incrementStage();
 		};
 	}
 
-	void FinalizationOrchestrator::advance(Timestamp time) {
-		m_stageStartTime = time;
+	// TODO: not sure if this needs to be part of orchestrator or external?
+	void FinalizationOrchestrator::propose() {
+		m_messageSink(m_heightHashesPairSupplier());
+	}
 
-		m_messageSink(CreateEmptyHeightHashesPair());
+	void FinalizationOrchestrator::advance(Timestamp time) {
+		if (m_stageStartTime == Timestamp()) {
+			m_stageStartTime = time;
+			return;
+		}
+
+		if (Stage::Propose_Chain == m_stage) {
+			if (time > m_stageStartTime + m_config.ProposeMessageStageDuration) {
+				if (m_pLastProposeMessage) {
+					// TODO: find first difference between m_heightHashesPairSupplier().Hashes and proof.front().Hashes
+					//       and send an appropriate message
+					m_pLastProposeMessage.reset();
+				} else {
+					m_messageSink(CreateEmptyHeightHashesPair());
+				}
+			}
+
+			return;
+		}
+
+		if (time > m_stageStartTime + m_config.AggregationStageMaxDuration) {
+			m_messageSink(CreateEmptyHeightHashesPair());
+			incrementStage();
+		}
+	}
+
+	void FinalizationOrchestrator::incrementStage() {
+		m_stageStartTime = Timestamp();
+
+		m_stage = Stage::Binary_BA_End == m_stage
+				? Stage::Propose_Chain
+				: static_cast<Stage>(utils::to_underlying_type(m_stage) + 1);
 	}
 }}
