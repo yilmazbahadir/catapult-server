@@ -82,7 +82,7 @@ namespace catapult { namespace chain {
 	// }
 
 	ConsensusSink FinalizationOrchestrator::createConsensusSink(const ConsensusSink& pointConsensusSink) {
-		return [/*this,*/ pointConsensusSink](const auto& stepIdentifier, const auto& heightHashPair, const auto& proof) {
+		return [this, pointConsensusSink](const auto& stepIdentifier, const auto& heightHashPair, const auto& proof) {
 			auto stage = static_cast<Stage>(stepIdentifier.SubRound);
 			switch (stage) {
 			case Stage::Propose_Chain:

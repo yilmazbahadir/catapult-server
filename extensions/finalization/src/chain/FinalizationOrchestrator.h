@@ -70,6 +70,6 @@ namespace catapult { namespace chain {
 		consumer<const HeightHashesPair&> m_messageSink;
 
 		Timestamp m_stageStartTime;
-		// std::shared_ptr<const model::FinalizationMessage> m_pLastProposeMessage;
+		std::shared_ptr<const model::FinalizationMessage> m_pLastProposeMessage;
 	};
 }}
