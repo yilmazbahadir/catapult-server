@@ -84,7 +84,6 @@ namespace catapult { namespace chain {
 	void FinalizationOrchestrator::advance(Timestamp time) {
 		m_stepStartTime = time;
 
-
 		m_messageSink(CreateEmptyHeightHashesPair());
 	}
 }}
