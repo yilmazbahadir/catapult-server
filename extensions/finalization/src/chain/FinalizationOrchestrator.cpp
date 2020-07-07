@@ -73,7 +73,7 @@ namespace catapult { namespace chain {
 			return CreateFinalizationMessageCommonBlockAggregator(m_config, m_heightHashesPairSupplier());
 		default:
 			return CreateFinalizationMessageCountVotesAggregator(m_config);
-		};
+		}
 	}
 
 	ConsensusSink FinalizationOrchestrator::createConsensusSink(const ConsensusSink& pointConsensusSink) {
