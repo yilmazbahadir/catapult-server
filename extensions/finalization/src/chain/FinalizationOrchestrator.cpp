@@ -118,7 +118,9 @@ namespace catapult { namespace chain {
 		}
 
 		if (Stage::Propose_Chain == m_stage) {
-			if (time > m_stageStartTime + m_config.ProposeMessageStageDuration) {
+			CATAPULT_LOG(warning) << "time " << time << " RHS " << m_stageStartTime + m_config.ProposeMessageStageDuration;
+			CATAPULT_LOG(warning) << "lhs " << (time - m_stageStartTime) << " RHS " << (Timestamp(0) + m_config.ProposeMessageStageDuration);
+			if (time - m_stageStartTime > Timestamp(0) + m_config.ProposeMessageStageDuration) {
 				if (m_pLastProposeMessage) {
 					// TODO: find first difference between m_heightHashesPairSupplier().Hashes and proof.front().Hashes
 					//       and send an appropriate message

@@ -117,11 +117,10 @@ namespace catapult { namespace chain {
 	TEST(TEST_CLASS, CanCreateOrchestrator) {
 		// Act:
 		TestContext context;
-		const auto& orchestrator = context.orchestrator();
 
 		// Assert:
-		EXPECT_EQ(0u, orchestrator.subRound());
-		EXPECT_EQ(Timestamp(), orchestrator.subRoundStartTime());
+		EXPECT_EQ(0u, context.orchestrator().subRound());
+		EXPECT_EQ(Timestamp(), context.orchestrator().subRoundStartTime());
 
 		// Sanity:
 		EXPECT_EQ(0u, context.heightHashesPairSupplier().size());
@@ -232,6 +231,22 @@ namespace catapult { namespace chain {
 	// endregion
 
 	// region advance
+
+	TEST(TEST_CLASS, Advance_ProposeStage_HasNoEffectWhenStageDurationHasNotElapsed) {
+		// Arrange:
+		TestContext context;
+
+		// Act:
+		context.orchestrator().advance(Timestamp(60 * 1000));
+		context.orchestrator().advance(Timestamp(2 * 60 * 1000 - 1));
+
+		// Assert:
+		EXPECT_EQ(0u, context.orchestrator().subRound());
+		EXPECT_EQ(Timestamp(60 * 1000), context.orchestrator().subRoundStartTime());
+
+		EXPECT_EQ(0u, context.heightHashesPairSupplier().size());
+		EXPECT_EQ(0u, context.messageSink().seeds().size());
+	}
 
 	// endregion
 }}
