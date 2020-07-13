@@ -21,6 +21,10 @@
 #include "AdditionalTransactions.h"
 #include "catapult/io/PodIoUtils.h"
 #include "catapult/io/RawFile.h"
+#include "catapult/model/MosaicAliasTransaction.h"
+#include "catapult/model/MosaicDefinitionTransaction.h"
+#include "catapult/model/MosaicSupplyChangeTransaction.h"
+#include "catapult/model/NamespaceRegistrationTransaction.h"
 #include "catapult/utils/MemoryUtils.h"
 #include <boost/filesystem.hpp>
 
@@ -56,7 +60,18 @@ namespace catapult { namespace tools { namespace nemgen {
 		}
 
 		bool IsSupportedTransactionType(model::EntityType entityType) {
-			return model::Entity_Type_Voting_Key_Link == entityType || model::Entity_Type_Vrf_Key_Link == entityType;
+			switch (entityType) {
+				case model::Entity_Type_Voting_Key_Link:
+				case model::Entity_Type_Vrf_Key_Link:
+				case model::Entity_Type_Alias_Address:
+				case model::Entity_Type_Alias_Mosaic:
+				case model::Entity_Type_Mosaic_Definition:
+				case model::Entity_Type_Mosaic_Supply_Change:
+				case model::Entity_Type_Namespace_Registration:
+					return true;
+			}
+
+			return false;
 		}
 
 		void ValidateTransaction(const model::Transaction& transaction, const std::string& filePath) {
