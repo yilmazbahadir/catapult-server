@@ -59,18 +59,26 @@ namespace catapult { namespace extensions {
 		AssertUnsupported(observers::NotifyMode::Commit, Height(2));
 	}
 
-	TEST(TEST_CLASS, ObserverFailsWhenTransferIsFromNonNemesisAccount) {
+	TEST(TEST_CLASS, ObserverAllowsTransferFromKnownAccount) {
 		// Arrange:
+		auto mosaicId = MosaicId(9876);
 		test::AccountObserverTestContext context(observers::NotifyMode::Commit, Height(1));
 		auto nemesis = test::GenerateRandomByteArray<Address>();
 		auto sender = test::GenerateRandomByteArray<Address>();
 
+		auto& accountStateCache = context.cache().sub<cache::AccountStateCache>();
+		accountStateCache.addAccount(sender, Height(1));
+		accountStateCache.find(sender).get().Balances.credit(mosaicId, Amount(12));
+
 		NemesisFundingState fundingState;
 		auto pObserver = CreateNemesisFundingObserver(nemesis, fundingState);
-		auto notification = CreateBalanceTransferNotification(sender, UnresolvedMosaicId(9876), Amount(12));
+		auto notification = CreateBalanceTransferNotification(sender, test::UnresolveXor(mosaicId), Amount(12));
 
-		// Act + Assert:
-		EXPECT_THROW(test::ObserveNotification(*pObserver, notification, context.observerContext()), catapult_invalid_argument);
+		// Act:
+		test::ObserveNotification(*pObserver, notification, context.observerContext());
+
+		// Assert:
+		EXPECT_EQ(0u, fundingState.TotalFundedMosaics.size());
 	}
 
 	// endregion

@@ -33,10 +33,22 @@ namespace catapult { namespace extensions {
 			if (observers::NotifyMode::Commit != context.Mode || Height(1) != context.Height)
 				CATAPULT_THROW_INVALID_ARGUMENT("NemesisFundingObserver only supports commit mode for nemesis block");
 
-			if (nemesisAddress != notification.Sender)
-				return;
 
 			auto& cache = context.Cache.sub<cache::AccountStateCache>();
+			if (nemesisAddress != notification.Sender) {
+				auto senderIter = cache.find(notification.Sender);
+				if (!senderIter.tryGet())
+					CATAPULT_THROW_INVALID_ARGUMENT("NemesisFundingObserver only supports funded accounts");
+
+				auto& senderState = senderIter.get();
+
+				auto mosaicId = context.Resolvers.resolve(notification.MosaicId);
+				if (senderState.Balances.get(mosaicId) < notification.Amount)
+					CATAPULT_THROW_INVALID_ARGUMENT("NemesisFundingObserver only supports funded accounts");
+
+				return;
+			}
+
 			cache.addAccount(notification.Sender, context.Height);
 
 			auto senderIter = cache.find(notification.Sender);
