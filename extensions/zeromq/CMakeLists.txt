@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
 message("--- locating zeromq dependencies ---")
 # ZeroMQ does not support CMake for now, pkg-config fallback will be done by cppzmqConfig.cmake
@@ -14,7 +16,8 @@ message("cppzmq    inc: ${cppzmq_INCLUDE_DIR}")
 ### find and set zeromq includes and libraries
 function(catapult_add_zeromq_dependencies TARGET_NAME)
 	# libzmq will be included by cppzmq
-	target_link_libraries(${TARGET_NAME} cppzmq)
+	include_directories(${cppzmq_INCLUDE_DIR})
+	target_link_libraries(${TARGET_NAME} ${cppzmq_LIBRARIES})
 endfunction()
 
 catapult_define_extension(zeromq)

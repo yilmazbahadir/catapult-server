@@ -1,12 +1,13 @@
 cmake_minimum_required(VERSION 3.14)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
 
 message("--- locating mongo dependencies ---")
-find_package(LIBMONGOCXX REQUIRED)
-find_package(LIBBSONCXX REQUIRED)
+find_package(mongo-cxx-driver REQUIRED)
 
 message("mongocxx  ver: ${LIBMONGOCXX_PACKAGE_VERSION}")
-find_library(MONGOC_LIB mongoc-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
-find_library(BSONC_LIB bson-1.0 ${LIBMONGOCXX_LIBRARY_DIRS})
+find_library(MONGOC_LIB mongoc-1.0 ${mongo-cxx-driver_LIBRARIES})
+find_library(BSONC_LIB bson-1.0 ${mongo-cxx-driver_LIBRARIES})
 
 if(MSVC)
 	set(MONGO_ADDITIONAL_LIBS bcrypt crypt32 secur32 ws2_32)
@@ -14,15 +15,15 @@ else()
 	set(MONGO_ADDITIONAL_LIBS)
 endif()
 
-message("mongocxx libs: ${LIBMONGOCXX_LIBRARIES}")
-message("mongocxx  inc: ${LIBMONGOCXX_INCLUDE_DIRS}")
+message("mongocxx libs: ${mongo-cxx-driver_LIBRARIES_TARGETS}")
+message("mongocxx  inc: ${mongo-cxx-driver_INCLUDE_DIRS}")
 message("mongoc    lib: ${MONGOC_LIB}")
 message("bsonc     lib: ${BSONC_LIB}")
 
 ### find and set mongo includes and libraries
 function(catapult_add_mongo_dependencies TARGET_NAME)
-	include_directories(SYSTEM ${LIBMONGOCXX_INCLUDE_DIRS} ${LIBBSONCXX_INCLUDE_DIRS})
-	target_link_libraries(${TARGET_NAME} ${LIBMONGOCXX_LIBRARIES} ${MONGO_ADDITIONAL_LIBS})
+	include_directories(SYSTEM ${mongo-cxx-driver_INCLUDE_DIR})
+	target_link_libraries(${TARGET_NAME} ${mongo-cxx-driver_LIBS} ${MONGO_ADDITIONAL_LIBS})
 endfunction()
 
 # used to define a catapult mongo int test executable by combining catapult_test_executable and catapult_target
