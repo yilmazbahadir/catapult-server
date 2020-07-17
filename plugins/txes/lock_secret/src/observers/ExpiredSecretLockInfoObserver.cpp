@@ -30,7 +30,7 @@ namespace catapult { namespace observers {
 		ExpiredLockInfoObserver<cache::SecretLockInfoCache>(context, model::Receipt_Type_LockSecret_Expired, [](
 				auto& accountStateCache,
 				const auto& lockInfo,
-				const auto& accountStateConsumer) {
+				auto accountStateConsumer) {
 			accountStateConsumer(accountStateCache.find(lockInfo.OwnerAddress).get());
 		});
 	});

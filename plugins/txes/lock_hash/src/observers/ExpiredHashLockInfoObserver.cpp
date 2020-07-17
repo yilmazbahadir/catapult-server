@@ -33,7 +33,7 @@ namespace catapult { namespace observers {
 		ExpiredLockInfoObserver<cache::HashLockInfoCache>(context, model::Receipt_Type_LockHash_Expired, [&notification](
 				auto& accountStateCache,
 				const auto&,
-				const auto& accountStateConsumer) {
+				auto accountStateConsumer) {
 			cache::ProcessForwardedAccountState(accountStateCache, notification.Harvester, [accountStateConsumer](auto& accountState) {
 				accountStateConsumer(accountState);
 			});
