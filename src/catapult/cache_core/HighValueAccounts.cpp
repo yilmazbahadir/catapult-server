@@ -75,9 +75,9 @@ namespace catapult { namespace cache {
 			void updateOne(const Address& address, bool shouldInclude) {
 				if (shouldInclude) {
 					m_current.insert(address);
-					m_removed.erase(address); // needed for multiblock syncs when account is added (or original), removed, readded
 
-					// don't need to modify m_removed because an element can't be in both Added and Copied
+					// needed for multiblock syncs when original account is removed and then readded
+					m_removed.erase(address);
 				} else {
 					m_current.erase(address);
 

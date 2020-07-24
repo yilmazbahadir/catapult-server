@@ -368,7 +368,7 @@ namespace catapult { namespace cache {
 	}
 
 	TEST(TEST_CLASS, Updater_HarvesterEligible_CanProcessMixedViaMultipleUpdates_SingleAccount) {
-		// Arrange: { 0, 1 } are treated as original accounts but { 2, 3 } are treated as added accounts
+		// Arrange: { 0, 1 } are treated as original accounts whereas { 2, 3 } are treated as added accounts
 		test::DeltaElementsTestUtils::Wrapper<MemorySetType> deltas;
 		auto addedAddresses = AddAccountsWithBalances(deltas.Added, {
 			Amount(1'100'000), Amount(900'000), Amount(1'000'000), Amount(800'000)
@@ -381,7 +381,7 @@ namespace catapult { namespace cache {
 		updater.update(deltas.deltas());
 
 		// Assert:
-		EXPECT_EQ(Pick(addedAddresses, { 0, 2, }), updater.addresses());
+		EXPECT_EQ(Pick(addedAddresses, { 0, 2 }), updater.addresses());
 		EXPECT_EQ(Pick(addedAddresses, { 1 }), updater.removedAddresses());
 
 		// Act: modify all
